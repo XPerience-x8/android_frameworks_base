@@ -24,7 +24,7 @@
 
 #include <ui/Rect.h>
 
-#ifdef LIBAGL_USE_GRALLOC_COPYBITS
+#if defined (LIBAGL_USE_GRALLOC_COPYBITS) || defined (STE_HARDWARE)
 #include <hardware/copybit.h>
 #endif
 
@@ -187,7 +187,7 @@ Region& Region::operator += (const Point& pt) {
 }
 
 
-#ifdef LIBAGL_USE_GRALLOC_COPYBITS
+#if defined (LIBAGL_USE_GRALLOC_COPYBITS) || defined (STE_HARDWARE)
 // ---------------------------------------------------------------------------
 
 struct region_iterator : public copybit_region_t {
@@ -208,7 +208,6 @@ private:
     Region::const_iterator const e;
 };
 #endif
-
 // ---------------------------------------------------------------------------
 }; // namespace android
 
