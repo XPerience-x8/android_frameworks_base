@@ -67,6 +67,8 @@ public class UsbService extends IUsbManager.Stub {
             "DEVPATH=/devices/virtual/usb_composite/";
     private static final String USB_LEGACY_MATCH =
             "DEVPATH=/devices/virtual/switch/usb_mass_storage";
+    private static final String USB_LEGACY_MATCH2 =
+            "DEVPATH=/devices/virtual/switch/mass_storage";
     private static final String USB_CONNECTED_PATH =
             "/sys/class/switch/usb_connected/state";
     private static final String USB_CONFIGURATION_PATH =
@@ -77,6 +79,8 @@ public class UsbService extends IUsbManager.Stub {
             "/sys/devices/platform/android_usb/functions";
     private static final String USB_LEGACY_PATH =
             "/sys/class/switch/usb_mass_storage/state";
+    private static final String USB_LEGACY_PATH2 =
+            "/sys/class/switch/mass_storage/state";
 
     private static final int MSG_UPDATE_STATE = 0;
     private static final int MSG_FUNCTION_ENABLED = 1;
@@ -207,7 +211,7 @@ public class UsbService extends IUsbManager.Stub {
                     try {
                         if (mLegacy && !mHasUsbService) {
                             int intState = ("online".equals(state) ? 1 : 0);
-                            if ("usb_mass_storage".equals(name)) {
+                            if ("usb_mass_storage".equals(name) || "mass_storage".equals(name)) {
                                 mConnected = intState;
                                 mConfiguration = intState;
                                 // trigger an Intent broadcast
@@ -295,6 +299,7 @@ public class UsbService extends IUsbManager.Stub {
             if (mConfiguration >= 0 && !mHasUsbService) {
                 if (mLegacy) {
                     mUEventObserver.startObserving(USB_LEGACY_MATCH);
+                    mUEventObserver.startObserving(USB_LEGACY_MATCH2);
                 } else {
                     mUEventObserver.startObserving(USB_CONNECTED_MATCH);
                     mUEventObserver.startObserving(USB_CONFIGURATION_MATCH);
@@ -335,8 +340,21 @@ public class UsbService extends IUsbManager.Stub {
                 mConfiguration = 0;
             } catch (FileNotFoundException f) {
                 Slog.i(TAG, "This kernel does not have legacy USB configuration switch support");
-            } catch (Exception f) {
-                Slog.e(TAG, "" , f);
+                Slog.i(TAG, "Trying legacy2 USB configuration switch support");
+                try {
+                    FileReader file = new FileReader(USB_LEGACY_PATH2);
+                    int len = file.read(buffer, 0, 1024);
+                    file.close();
+                    mConnected = ("online".equals((new String(buffer, 0, len)).trim()) ? 1 : 0);
+                    mLegacy = true;
+                    mConfiguration = 0;
+                } catch (FileNotFoundException f2) {
+                    Slog.i(TAG, "This kernel does not have legacy2 USB configuration switch support");
+                } catch (Exception f2) {
+                    Slog.e(TAG, "" , f2);
+                }
+            } catch (Exception e2) {
+                Slog.e(TAG, "" , e2);
             }
         } catch (Exception e) {
             Slog.e(TAG, "" , e);
@@ -356,6 +374,7 @@ public class UsbService extends IUsbManager.Stub {
                 inAccessoryMode |= initFunctions(compositeDir, false, buffer);
             } else if (mLegacy) {
                 mDisabledFunctions.add(UsbManager.USB_FUNCTION_MASS_STORAGE);
+		mDefaultFunctions.add(UsbManager.USB_FUNCTION_ADB);
             }
         }
 
