@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012 Sven Dawitz for the CyanogenMod Project
+ * Copyright (C) 2013 TeamMEX The XPerience Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +66,7 @@ public class CircleBattery extends ImageView {
     private boolean mIsAnimating;   // stores charge-animation status to reliably remove callbacks
     private int     mDockLevel;     // current dock battery level
     private boolean mDockIsCharging;// whether or not dock battery is currently charging
-    private boolean mIsDocked;      // whether or not dock battery is connected
+    private boolean mIsDocked = false;      // whether or not dock battery is connected
 
     private int     mCircleSize;    // draw size of circle. read rather complicated from
                                     // another status bar icon, so it fits the icon size
@@ -81,6 +82,7 @@ public class CircleBattery extends ImageView {
     private Paint   mPaintGray;
     private Paint   mPaintSystem;
     private Paint   mPaintRed;
+    private Paint   mPaintGreen;
 
     // runnable to invalidate view via mHandler.postDelayed() call
     private final Runnable mInvalidate = new Runnable() {
@@ -107,7 +109,7 @@ public class CircleBattery extends ImageView {
         @Override
         public void onChange(boolean selfChange) {
             int batteryStyle = (Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.STATUS_BAR_BATTERY, 0));
+                    Settings.System.STATUS_BAR_BATTERY, BatteryController.BATTERY_STYLE_CIRCLE_PERCENT));
 
             mActivated = (batteryStyle == BatteryController.BATTERY_STYLE_CIRCLE || batteryStyle == BatteryController.BATTERY_STYLE_CIRCLE_PERCENT);
             mPercentage = (batteryStyle == BatteryController.BATTERY_STYLE_CIRCLE_PERCENT);
@@ -136,12 +138,6 @@ public class CircleBattery extends ImageView {
             if (action.equals(Intent.ACTION_BATTERY_CHANGED)) {
                 mLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
                 mIsCharging = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0;
-
-                mDockLevel = intent.getIntExtra(BatteryManager.EXTRA_DOCK_LEVEL, 0);
-                mDockIsCharging = intent.getIntExtra(BatteryManager.EXTRA_DOCK_STATUS,
-                        BatteryManager.DOCK_BATTERY_STATUS_UNKNOWN) == BatteryManager.DOCK_BATTERY_STATUS_CHARGING;
-                mIsDocked = intent.getBooleanExtra(BatteryManager.EXTRA_DOCK_PRESENT,
-                        false);
 
                 if (mActivated && mAttached) {
                     LayoutParams l = getLayoutParams();
@@ -213,13 +209,15 @@ public class CircleBattery extends ImageView {
         mPaintGray = new Paint(mPaintFont);
         mPaintSystem = new Paint(mPaintFont);
         mPaintRed = new Paint(mPaintFont);
+        mPaintGreen = new Paint(mPaintFont);
 
-        mPaintFont.setColor(res.getColor(R.color.holo_blue_dark));
-        mPaintSystem.setColor(res.getColor(R.color.holo_blue_dark));
+        mPaintFont.setColor(res.getColor(R.color.white));
+        mPaintSystem.setColor(res.getColor(R.color.white));
         // could not find the darker definition anywhere in resources
         // do not want to use static 0x404040 color value. would break theming.
         mPaintGray.setColor(res.getColor(R.color.darker_gray));
         mPaintRed.setColor(res.getColor(R.color.holo_red_light));
+        mPaintGreen.setColor(res.getColor(R.color.holo_green_dark));
 
         // font needs some extra settings
         mPaintFont.setTextAlign(Align.CENTER);
@@ -272,6 +270,9 @@ public class CircleBattery extends ImageView {
         int padLevel = level;
         if (padLevel >= 97) {
             padLevel = 100;
+            if (mIsCharging) {
+                usePaint = mPaintGreen;
+            }
         }
 
         // draw thin gray ring first
@@ -344,6 +345,7 @@ public class CircleBattery extends ImageView {
 
         float strokeWidth = mCircleSize / 6.5f;
         mPaintRed.setStrokeWidth(strokeWidth);
+        mPaintGreen.setStrokeWidth(strokeWidth);
         mPaintSystem.setStrokeWidth(strokeWidth);
         mPaintGray.setStrokeWidth(strokeWidth / 3.5f);
 
