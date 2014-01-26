@@ -222,6 +222,7 @@
         </com.android.systemui.statusbar.TickerView>
     </LinearLayout>
 
+
     <com.android.systemui.statusbar.DateView android:id="@+id/date"
         android:textAppearance="@*android:style/TextAppearance.StatusBar.Icon"
         android:layout_width="wrap_content"
@@ -230,7 +231,7 @@
         android:gravity="center_vertical|left"
         android:paddingLeft="6px"
         android:paddingRight="6px"
-        android:background="@drawable/statusbar_background"
+        android:background="@drawable/trans"
         />
 
     <com.android.systemui.statusbar.CmBatteryBar
