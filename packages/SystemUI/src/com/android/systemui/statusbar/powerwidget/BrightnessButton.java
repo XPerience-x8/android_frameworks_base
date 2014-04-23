@@ -1,4 +1,3 @@
-
 package com.android.systemui.statusbar.powerwidget;
 
 import com.android.systemui.R;
@@ -16,6 +15,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -116,7 +116,14 @@ public class BrightnessButton extends PowerButton {
         Log.e(TAG, "backlightIndex: " + backlightIndex + "mCurrentBacklightIndex: " + mCurrentBacklightIndex );
         if (backlightIndex > BACKLIGHTS.length - 1) {
             // This is the Ultra Brightness mode
-            writeOneLine("/sys/devices/platform/i2c-adapter/i2c-0/0-0036/mode", "i2c_pwm");
+             File f = new File("/sys/devices/platform/i2c-adapter/i2c-0/0-0036/mode");
+             String modeFile = "";
+             if (f.isFile() && f.canRead())
+                 modeFile = "/sys/devices/platform/i2c-adapter/i2c-0/0-0036/mode";
+             else
+                 modeFile = "/sys/devices/i2c-0/0-0036/mode";
+ 
+             writeOneLine(modeFile, "i2c_pwm");
             Settings.System.putInt(resolver, Settings.System.SCREEN_BRIGHTNESS_ULTRA_MODE,
                     Settings.System.SCREEN_BRIGHTNESS_MODE_ULTRA_ENABLED);
             // Also set Brightness to max
@@ -125,7 +132,14 @@ public class BrightnessButton extends PowerButton {
         }
         else if (backlightIndex == 1) {
             // When dimming, disable ultra brightness
-            writeOneLine("/sys/devices/platform/i2c-adapter/i2c-0/0-0036/mode", "i2c_pwm_als");
+             File f = new File("/sys/devices/platform/i2c-adapter/i2c-0/0-0036/mode");
+             String modeFile = "";
+             if (f.isFile() && f.canRead())
+                 modeFile = "/sys/devices/platform/i2c-adapter/i2c-0/0-0036/mode";
+             else
+                 modeFile = "/sys/devices/i2c-0/0-0036/mode";
+ 
+             writeOneLine(modeFile, "i2c_pwm_als");
             Settings.System.putInt(resolver, Settings.System.SCREEN_BRIGHTNESS_ULTRA_MODE,
                     Settings.System.SCREEN_BRIGHTNESS_MODE_ULTRA_DISABLED);
         }
