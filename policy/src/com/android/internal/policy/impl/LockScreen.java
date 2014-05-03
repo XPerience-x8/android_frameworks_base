@@ -653,7 +653,7 @@ class LockScreen extends RelativeLayout implements KeyguardScreen {
         lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         mXPEleft.setLayoutParams(lp);
         mXPEleft.setVisibility(View.VISIBLE);
-        mXPEleft.setText("XPerience " + android.os.SystemProperties.get("ro.xpever));
+        mXPEleft.setText("XPerience " + android.os.SystemProperties.get("ro.xpever"));
         mXPEleft.setTextColor(0xffffffff);
         this.addView(mXPEleft);
 
