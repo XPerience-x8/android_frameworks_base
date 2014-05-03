@@ -3957,4 +3957,7 @@
 
   <!-- Stylus gestures -->
   <java-symbol type="bool" name="config_stylusGestures" />
+
+  <!-- White UI Style -->
+  <public type="color" name="holo_white_dark" id="0x0106001c" />
 </resources>
