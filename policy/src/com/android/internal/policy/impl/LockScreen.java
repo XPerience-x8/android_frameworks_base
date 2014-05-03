@@ -48,6 +48,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewParent;
 import android.widget.*;
 import android.widget.ImageView.ScaleType;
@@ -71,7 +72,7 @@ import java.util.ArrayList;
  * information about the device depending on its state, and how to get
  * past it, as applicable.
  */
-class LockScreen extends LinearLayout implements KeyguardScreen {
+class LockScreen extends RelativeLayout implements KeyguardScreen {
 
     private static final int ON_RESUME_PING_DELAY = 500; // delay first ping until the screen is on
     private static final boolean DBG = false;
@@ -96,6 +97,11 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
     private AudioManager mAudioManager;
     private boolean mEnableMenuKeyInLockScreen;
     private boolean mUnlockKeyDown = false;
+
+
+    // XPerience Project
+    private TextView mXPEleft;
+    private TextView mXPEright;
 
     private KeyguardStatusViewManager mStatusViewManager;
     private UnlockWidgetCommonMethods mUnlockWidgetMethods;
@@ -638,6 +644,31 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
         mSilentMode = isSilentMode();
         mUnlockWidget = findViewById(R.id.unlock_widget);
         mUnlockWidgetMethods = createUnlockMethods(mUnlockWidget);
+
+        mXPEleft = new TextView(context);
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        lp.leftMargin = 4;
+        lp.bottomMargin = 4;
+        lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        mXPEleft.setLayoutParams(lp);
+        mXPEleft.setVisibility(View.VISIBLE);
+        mXPEleft.setText("XPerience " + android.os.SystemProperties.get("ro.xpever));
+        mXPEleft.setTextColor(0xffffffff);
+        this.addView(mXPEleft);
+
+        mXPEright = new TextView(context);
+        lp = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        lp.rightMargin = 4;
+        lp.bottomMargin = 4;
+        lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        mXPEright.setLayoutParams(lp);
+        mXPEright.setVisibility(View.VISIBLE);
+        mXPEright.setText("Klozz Jesus");
+        mXPEright.setTextColor(0xffffffff);
+        this.addView(mXPEright);
+
 
         if (DBG) Log.v(TAG, "*** LockScreen accel is "
                 + (mUnlockWidget.isHardwareAccelerated() ? "on":"off"));
